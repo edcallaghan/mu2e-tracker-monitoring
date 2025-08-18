@@ -6,6 +6,7 @@
 #define PRIORITYQUEUE_H
 
 #include <algorithm>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -27,12 +28,14 @@ class PriorityQueue{
     using Pair = std::pair<priority_t, U>;
 
     PriorityQueue(size_t);
+    size_t size();
     void push(T, priority_t=0);
     T pop();
 
   protected:
     std::vector< Pair<T> > buffer;
     KeyedComparison<T> compare;
+    std::mutex mutex;
 
   private:
     /**/
@@ -45,7 +48,15 @@ PriorityQueue<T>::PriorityQueue(size_t size){
 }
 
 template<typename T>
+size_t PriorityQueue<T>::size(){
+  std::lock_guard guard(this->mutex);
+  auto rv = this->buffer.size();
+  return rv;
+}
+
+template<typename T>
 void PriorityQueue<T>::push(T item, priority_t priority){
+  std::lock_guard guard(this->mutex);
   auto pair = std::make_pair(priority, item);
   this->buffer.push_back(pair);
   std::push_heap(this->buffer.begin(), this->buffer.end(), this->compare);
@@ -53,6 +64,7 @@ void PriorityQueue<T>::push(T item, priority_t priority){
 
 template<typename T>
 T PriorityQueue<T>::pop(){
+  std::lock_guard guard(this->mutex);
   std::pop_heap(this->buffer.begin(), this->buffer.end(), this->compare);
   T rv = this->buffer.back().second;
   this->buffer.pop_back();

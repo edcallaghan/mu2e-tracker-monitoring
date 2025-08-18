@@ -12,14 +12,21 @@
 #include <asio.hpp>
 #include <gpiod.hpp>
 
+/*
 typedef char           SerialMessage_t[3];
 typedef unsigned short Address_t;
 typedef char           OpCode_t;
 typedef unsigned short Payload_t;
+*/
 
 class RS485Bus{
-    static const char recv_header = 0xEF;
+  static const char recv_header = 0xEF;
+
   public:
+    using SerialMessage_t = char[3];
+    using Address_t = unsigned short;
+    using OpCode_t = char;
+    using Payload_t = unsigned short;
     RS485Bus(const std::string&, const unsigned int,
              asio::io_context&,
              const std::string&, const unsigned int);
