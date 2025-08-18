@@ -3,6 +3,7 @@
 // August 2025
 
 #include <string>
+#include "PriorityQueue.h"
 #include "RS485Bus.h"
 using namespace std;
 
@@ -20,6 +21,12 @@ int main(int argc, char** argv){
   bus.recv(payload);
 
   cout << to_string(payload) << endl;
+
+  PriorityQueue<int> queue(1024);
+  queue.push(42);
+  queue.push(99);
+  cout << queue.pop() << endl;
+  cout << queue.pop() << endl;
 
   return 0;
 }
