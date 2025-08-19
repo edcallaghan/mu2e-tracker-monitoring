@@ -55,6 +55,13 @@ void RS485Bus::recv(Payload_t& rv){
     throw std::runtime_error(msg);
   }
   this->unpack_message(message, rv);
+
+  // begin a cool-off period for the line to settle; the literal
+  // waiting is deferred to a separate thread so that the current
+  // readback value can be returned to the client immediately
+  auto f = [this] () { this->pause_io(); };
+  std::thread pause(f);
+  pause.detach();
 }
 
 void RS485Bus::set_line_value(gpiod::line::value value){
@@ -71,12 +78,14 @@ void RS485Bus::set_receiving(){
 
 size_t RS485Bus::write(const SerialMessage_t& message){
   asio::const_buffer buffer(&message, sizeof(SerialMessage_t));
+  std::lock_guard lock(this->mutex);
   size_t rv = asio::write(this->device, buffer);
   return rv;
 }
 
 size_t RS485Bus::read(SerialMessage_t& message){
   asio::mutable_buffer buffer(&message, sizeof(SerialMessage_t));
+  std::lock_guard lock(this->mutex);
   size_t rv = asio::read(this->device, buffer);
   return rv;
 }
@@ -99,4 +108,9 @@ void RS485Bus::unpack_message(const SerialMessage_t& message, Payload_t& payload
 
   const char* base = &message[0];
   memcpy(&payload, base+sizeof(RS485Bus::recv_header), sizeof(Payload_t));
+}
+
+void RS485Bus::pause_io(){
+  std::lock_guard lock(this->mutex);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }

@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <memory>
+#include <mutex>
 #include <stdexcept>
 #include <thread>
 #include <asio.hpp>
@@ -26,6 +27,7 @@ class RS485Bus{
     using SerialMessage_t = char[3];
     using Address_t = unsigned short;
     using OpCode_t = char;
+    using Header_t = char;
     using Payload_t = unsigned short;
     RS485Bus(const std::string&, const unsigned int,
              asio::io_context&,
@@ -41,6 +43,7 @@ class RS485Bus{
     std::unique_ptr<gpiod::line_request> request;
     asio::any_io_executor executor;
     asio::serial_port device;
+    std::mutex mutex;
 
     void set_line_value(gpiod::line::value);
     void set_transmitting();
@@ -49,6 +52,7 @@ class RS485Bus{
     size_t read(SerialMessage_t&);
     void pack_message(const Address_t, const OpCode_t, SerialMessage_t&);
     void unpack_message(const SerialMessage_t&, Payload_t&);
+    void pause_io();
 
   private:
     /**/
