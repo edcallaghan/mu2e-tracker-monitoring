@@ -32,7 +32,7 @@ Message_t* DigitalConversionMap::AsMessage(RS485Bus::OpCode_t opcode,
   Message_t* rv;
   blob_t blob = this->AsBlob(opcode, payload);
   if (this->typecodes[opcode] == 'U'){
-    rv = message_wrap_uint(blob.u);
+    rv = message_wrap_unsigned_int(blob.u);
   }
   else if (this->typecodes[opcode] == 'D'){
     rv = message_wrap_double(blob.d);
