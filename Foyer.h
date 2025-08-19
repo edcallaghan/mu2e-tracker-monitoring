@@ -6,8 +6,9 @@
 #define FOYER_H
 
 #include <thread>
+#include "DigitalConversionMap.h"
 #include "Handler.h"
 
-void foyer(const int, Queue&);
+void foyer(const int, Queue&, DigitalConversionMap&);
 
 #endif

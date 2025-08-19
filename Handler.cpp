@@ -4,7 +4,8 @@
 
 #include "Handler.h"
 
-void client_handler(const Connection connection, Queue& queue){
+void client_handler(const Connection connection, Queue& queue,
+                    DigitalConversionMap& conversions){
   Message_t* message;
   std::mutex mutex;
   while (0 < message_recv(&message, connection.fd)){
@@ -42,7 +43,7 @@ void client_handler(const Connection connection, Queue& queue){
       block_as_uint(message->blocks[1])
     );
     auto opcode = static_cast<RS485Bus::OpCode_t>(
-      block_as_uint(message->blocks[1])
+      block_as_uint(message->blocks[2])
     );
     auto task = std::make_shared<Task>(hwaddr, opcode);
     queue.push(task, priority);
@@ -51,6 +52,8 @@ void client_handler(const Connection connection, Queue& queue){
     task->Wait();
 
     // send output back to client
-    message_send(task->Return().get(), connection.fd);
+    RS485Bus::Payload_t payload = task->Return();
+    message = conversions.AsMessage(opcode, payload);
+    message_send(message, connection.fd);
   }
 }

@@ -7,6 +7,7 @@
 
 #include <mutex>
 #include <thread>
+#include "DigitalConversionMap.h"
 #include "Messages.h"
 #include "Queue.h"
 #include "Task.h"
@@ -22,6 +23,6 @@ class Connection{
     int addrlen;
 };
 
-void client_handler(const Connection, Queue&);
+void client_handler(const Connection, Queue&, DigitalConversionMap&);
 
 #endif

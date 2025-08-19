@@ -6,9 +6,7 @@
 #define TASK_H
 
 #include <condition_variable>
-#include <memory>
 #include <mutex>
-#include "Messages.h"
 #include "RS485Bus.h"
 
 class Task{
@@ -20,8 +18,8 @@ class Task{
     void Wait();
     bool IsComplete();
     void MarkComplete();
-    void SetReturn(Message_t*);
-    std::shared_ptr<Message_t> Return();
+    void SetReturn(RS485Bus::Payload_t);
+    RS485Bus::Payload_t Return();
 
   protected:
     RS485Bus::Address_t address;
@@ -29,7 +27,7 @@ class Task{
     std::mutex mutex;
     std::condition_variable condition;
     bool complete;
-    std::shared_ptr<Message_t> rv;
+    RS485Bus::Payload_t rv;
 };
 
 #endif

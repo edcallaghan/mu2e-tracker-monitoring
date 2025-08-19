@@ -4,7 +4,7 @@
 
 #include "Foyer.h"
 
-void foyer(const int sfd, Queue& queue){
+void foyer(const int sfd, Queue& queue, DigitalConversionMap& conversions){
   int cfd;
   struct sockaddr_in address;
   int addrlen = sizeof(address);
@@ -16,7 +16,10 @@ void foyer(const int sfd, Queue& queue){
     }
 
     Connection connection(cfd, address, addrlen);
-    std::thread child(client_handler, connection, std::ref(queue));
+    std::thread child(client_handler,
+                      connection,
+                      std::ref(queue),
+                      std::ref(conversions));
     child.detach();
   }
 }

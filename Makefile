@@ -8,7 +8,7 @@ CPPFLAGS	:= -g -Og
 CPPFLAGS 	:= $(CPPFLAGS) -I$(HOME)/sw/libgpiod/install/include
 CFLAGS		:=
 LDFLAGS		:= -L$(HOME)/sw/libgpiod/install/lib -lgpiodcxx
-OBJS			:= Foyer.o Handler.o HardwareLoop.o InitializeServer.o RS485Bus.o Task.o Messages.o
+OBJS			:= DigitalConversionMap.o Foyer.o Handler.o HardwareLoop.o InitializeServer.o RS485Bus.o Task.o Messages.o
 
 all: $(EXE)
 

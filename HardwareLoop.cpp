@@ -17,6 +17,8 @@ void hardware_loop(RS485Bus& bus, Queue& queue){
     auto opcode = task->OpCode();
     bus.send(address, opcode);
     bus.recv(payload);
+
+    task->SetReturn(payload);
     task->MarkComplete();
   }
 }

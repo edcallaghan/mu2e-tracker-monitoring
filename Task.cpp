@@ -32,13 +32,14 @@ bool Task::IsComplete(){
 
 void Task::MarkComplete(){
   this->complete = true;
+  this->condition.notify_one();
 }
 
-void Task::SetReturn(Message_t* message){
-  this->rv = std::shared_ptr<Message_t>(message);
+void Task::SetReturn(RS485Bus::Payload_t payload){
+  this->rv = payload;
 }
 
-std::shared_ptr<Message_t> Task::Return(){
+RS485Bus::Payload_t Task::Return(){
   auto rv = this->rv;
   return rv;
 }
