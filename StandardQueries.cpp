@@ -113,7 +113,7 @@ void define_standard_conversions(DigitalConversionMap& conversions){
   );
   conversions.Register<double>(StandardQueries::DMBTEMP,
     [] (RS485Bus::Payload_t x){
-      auto rv = ((-3.9083e-3 + (pow(pow(3.9083e-3, 2) - 4*-5.775e-7*(1 - (3.3 - x * 3.3 / 4096)/(x * 3.3 / 4096)), 0.5)) / (2 * -5.775e-7)));
+      auto rv = ((-3.9083e-3 + (pow(pow(3.9083e-3, 2) - 4*-5.775e-7*(1 - (3.3 - x * 3.3 / 4096)/(x * 3.3 / 4096)), 0.5))) / (2 * -5.775e-7));
       return rv;
     }
   );
