@@ -35,7 +35,7 @@ Message_t* DigitalConversionMap::AsMessage(RS485Bus::OpCode_t opcode,
     rv = message_wrap_uint(blob.u);
   }
   else if (this->typecodes[opcode] == 'D'){
-    rv = message_wrap_double(blob.u);
+    rv = message_wrap_double(blob.d);
   }
   else{
     std::string msg = "no typecode defined for opcode ";

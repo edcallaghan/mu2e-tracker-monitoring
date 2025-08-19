@@ -3,9 +3,11 @@
 // August 2025
 
 #include <string>
-#include "InitializeServer.h"
+#include "DigitalConversionMap.h"
 #include "Foyer.h"
 #include "HardwareLoop.h"
+#include "InitializeServer.h"
+#include "StandardQueries.h"
 #include "Queue.h"
 #include "RS485Bus.h"
 using namespace std;
@@ -39,9 +41,7 @@ int main(int argc, char** argv){
 
   // define readback conversions
   DigitalConversionMap conversions;
-  conversions.Register<unsigned int>(252, [] (RS485Bus::Payload_t x){
-      return x;
-  });
+  define_standard_conversions(conversions);
 
   // connect to hardware
   std::thread hardware_thread(hardware_loop, std::ref(bus), std::ref(queue));
