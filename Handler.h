@@ -6,6 +6,7 @@
 #define HANDLER_H
 
 #include <mutex>
+#include <stdexcept>
 #include <thread>
 #include "DigitalConversionMap.h"
 #include "Messages.h"

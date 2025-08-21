@@ -10,8 +10,10 @@ RS485Bus::RS485Bus(const std::string& cpath, const unsigned int pin,
     chip(cpath),
     enable_pin(pin),
     line(chip.get_line(enable_pin)),
+    context(context),
     executor(asio::make_strand(context)),
-    device(executor){
+    device(executor),
+    timeout(std::chrono::seconds(1)){
   // claim ownership of gpio pin state
   gpiod::line_request request;
   request.consumer = "MYDEVICE";
@@ -42,14 +44,20 @@ void RS485Bus::send(const Address_t address, const OpCode_t opcode){
 }
 
 void RS485Bus::recv(Payload_t& rv){
+  this->read_error.clear();
   SerialMessage_t message;
   this->set_receiving();
   size_t bytes = this->read(message);
-  if (bytes != 3){
-    std::string msg = "read message of incorrect size";
-    throw std::runtime_error(msg);
-  }
-  this->unpack_message(message, rv);
+  if (!(this->timed_out)){
+    if (bytes != 3){
+      std::string msg = "read message of incorrect size";
+      throw std::runtime_error(msg);
+    }
+    this->unpack_message(message, rv);
+   }
+   else{
+     /**/
+   }
 
   // begin a cool-off period for the line to settle; the literal
   // waiting is deferred to a separate thread so that the current
@@ -57,6 +65,11 @@ void RS485Bus::recv(Payload_t& rv){
   auto f = [this] () { this->pause_io(); };
   std::thread pause(f);
   pause.detach();
+}
+
+void RS485Bus::recv(Payload_t& rv, bool& timed_out){
+  this->recv(rv);
+  timed_out = this->timed_out;
 }
 
 void RS485Bus::set_line_value(int value){
@@ -81,7 +94,19 @@ size_t RS485Bus::write(const SerialMessage_t& message){
 size_t RS485Bus::read(SerialMessage_t& message){
   asio::mutable_buffer buffer(&message, sizeof(SerialMessage_t));
   std::lock_guard lock(this->mutex);
-  size_t rv = asio::read(this->device, buffer);
+  size_t rv = 0;
+  auto callback = [&] (const std::error_code& ec, size_t size){
+    this->read_error = ec;
+    rv = size;
+  };
+  asio::async_read(this->device, buffer, callback);
+
+  this->timed_out = false;
+  this->context.restart();
+  auto completed = this->context.run_one_for(this->timeout);
+  if (completed < 1){
+    this->timed_out = true;
+  }
   return rv;
 }
 

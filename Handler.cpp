@@ -6,6 +6,9 @@
 
 void client_handler(const Connection connection, Queue& queue,
                     DigitalConversionMap& conversions){
+  std::string str_timeout = "Timeout";
+  char* cstr_timeout = const_cast<char*>(str_timeout.c_str());
+  Message_t* msg_timeout = message_wrap_chars(cstr_timeout);
   Message_t* message;
   std::mutex mutex;
   while (0 < message_recv(&message, connection.fd)){
@@ -52,8 +55,16 @@ void client_handler(const Connection connection, Queue& queue,
     task->Wait();
 
     // send output back to client
-    RS485Bus::Payload_t payload = task->Return();
-    message = conversions.AsMessage(opcode, payload);
+    if (task->IsComplete()){
+      RS485Bus::Payload_t payload = task->Return();
+      message = conversions.AsMessage(opcode, payload);
+    }
+    else if (task->IsTimedOut()){
+      message = msg_timeout;
+    }
+    else{
+      throw std::runtime_error("impossible state in client handler");
+    }
     message_send(message, connection.fd);
   }
 }

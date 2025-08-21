@@ -18,6 +18,8 @@ class Task{
     void Wait();
     bool IsComplete();
     void MarkComplete();
+    bool IsTimedOut();
+    void MarkTimedOut();
     void SetReturn(RS485Bus::Payload_t);
     RS485Bus::Payload_t Return();
 
@@ -27,6 +29,7 @@ class Task{
     std::mutex mutex;
     std::condition_variable condition;
     bool complete;
+    bool timed_out;
     RS485Bus::Payload_t rv;
 };
 

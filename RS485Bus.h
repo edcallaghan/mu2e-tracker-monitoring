@@ -30,14 +30,19 @@ class RS485Bus{
 
     void send(const Address_t, const OpCode_t);
     void recv(Payload_t&);
+    void recv(Payload_t&, bool&);
 
   protected:
     gpiod::chip chip;
     unsigned int enable_pin;
     gpiod::line line;
+    asio::io_context& context;
     asio::any_io_executor executor;
     asio::serial_port device;
     std::mutex mutex;
+    std::chrono::seconds timeout;
+    bool timed_out;
+    std::error_code read_error;
 
     void set_line_value(int);
     void set_transmitting();

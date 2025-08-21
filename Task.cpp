@@ -21,7 +21,9 @@ RS485Bus::OpCode_t Task::OpCode(){
 
 void Task::Wait(){
   std::unique_lock lock(this->mutex);
-  auto predicate = [this] () { return this->IsComplete(); };
+  auto predicate = [this] () {
+    return (this->IsComplete() || this->IsTimedOut());
+  };
   this->condition.wait(lock, predicate);
 }
 
@@ -32,6 +34,18 @@ bool Task::IsComplete(){
 
 void Task::MarkComplete(){
   this->complete = true;
+  this->timed_out = false;
+  this->condition.notify_one();
+}
+
+bool Task::IsTimedOut(){
+  auto rv = this->timed_out;
+  return rv;
+}
+
+void Task::MarkTimedOut(){
+  this->complete = false;
+  this->timed_out = true;
   this->condition.notify_one();
 }
 

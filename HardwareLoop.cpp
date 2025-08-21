@@ -5,6 +5,7 @@
 #include "HardwareLoop.h"
 
 void hardware_loop(RS485Bus& bus, Queue& queue){
+  bool timed_out = false;
   auto interval = std::chrono::milliseconds(10);
   RS485Bus::Payload_t payload;
   while (true){
@@ -16,9 +17,14 @@ void hardware_loop(RS485Bus& bus, Queue& queue){
     auto address = task->Address();
     auto opcode = task->OpCode();
     bus.send(address, opcode);
-    bus.recv(payload);
+    bus.recv(payload, timed_out);
 
     task->SetReturn(payload);
-    task->MarkComplete();
+    if (!timed_out){
+      task->MarkComplete();
+    }
+    else{
+      task->MarkTimedOut();
+    }
   }
 }
