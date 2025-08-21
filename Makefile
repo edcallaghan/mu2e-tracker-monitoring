@@ -5,9 +5,8 @@
 EXE				:= monitoring-server
 SRC				:= $(EXE).cpp
 CPPFLAGS	:= -g -Og
-CPPFLAGS 	:= $(CPPFLAGS) -I$(HOME)/sw/libgpiod/install/include
 CFLAGS		:=
-LDFLAGS		:= -L$(HOME)/sw/libgpiod/install/lib -lgpiodcxx
+LDFLAGS		:= -lgpiodcxx
 OBJS			:= DigitalConversionMap.o Foyer.o Handler.o HardwareLoop.o InitializeServer.o RS485Bus.o StandardQueries.o Task.o Messages.o
 
 all: $(EXE)

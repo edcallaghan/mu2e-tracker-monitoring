@@ -9,19 +9,14 @@ RS485Bus::RS485Bus(const std::string& cpath, const unsigned int pin,
                    const std::string& spath, const unsigned int baud_rate):
     chip(cpath),
     enable_pin(pin),
+    line(chip.get_line(enable_pin)),
     executor(asio::make_strand(context)),
     device(executor){
   // claim ownership of gpio pin state
-  gpiod::line_settings settings;
-  settings.set_direction(gpiod::line::direction::OUTPUT);
-  gpiod::request_builder builder = this->chip.prepare_request();
-  builder.set_consumer("MYDEVICE");
-  builder.add_line_settings(this->enable_pin, settings);
-  this->request = std::make_unique<gpiod::line_request>(builder.do_request());
-  if (!(*(this->request))){
-    std::string msg = "bad line request";
-    throw std::runtime_error(msg);
-  }
+  gpiod::line_request request;
+  request.consumer = "MYDEVICE";
+  request.request_type = gpiod::line_request::DIRECTION_OUTPUT;
+  this->line.request(request);
   // open serial device and set options
   this->device.open(spath);
   asio::serial_port_base::baud_rate baud(baud_rate);
@@ -64,16 +59,16 @@ void RS485Bus::recv(Payload_t& rv){
   pause.detach();
 }
 
-void RS485Bus::set_line_value(gpiod::line::value value){
-  this->request->set_value(this->enable_pin, value);
+void RS485Bus::set_line_value(int value){
+  this->line.set_value(value);
 }
 
 void RS485Bus::set_transmitting(){
-  this->set_line_value(gpiod::line::value::ACTIVE);
+  this->set_line_value(RS485Bus::gpiod_line_active);
 }
 
 void RS485Bus::set_receiving(){
-  this->set_line_value(gpiod::line::value::INACTIVE);
+  this->set_line_value(RS485Bus::gpiod_line_inactive);
 }
 
 size_t RS485Bus::write(const SerialMessage_t& message){
