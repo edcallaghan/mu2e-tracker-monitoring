@@ -6,6 +6,7 @@
 #define RS485BUS_H
 
 #include <chrono>
+#include <memory>
 #include <mutex>
 #include <stdexcept>
 #include <thread>
@@ -14,8 +15,6 @@
 
 class RS485Bus{
   static const char recv_header = 0xEF;
-  static const int gpiod_line_inactive = 0;
-  static const int gpiod_line_active = 1;
 
   public:
     using SerialMessage_t = char[3];
@@ -34,8 +33,8 @@ class RS485Bus{
 
   protected:
     gpiod::chip chip;
-    unsigned int enable_pin;
-    gpiod::line line;
+    gpiod::line::offset enable_pin;
+    std::unique_ptr<gpiod::line_request> request;
     asio::io_context& context;
     asio::any_io_executor executor;
     asio::serial_port device;
@@ -44,7 +43,7 @@ class RS485Bus{
     bool timed_out;
     std::error_code read_error;
 
-    void set_line_value(int);
+    void set_line_value(gpiod::line::value);
     void set_transmitting();
     void set_receiving();
     size_t write(const SerialMessage_t&);
