@@ -6,8 +6,8 @@ EXE				:= monitoring-server
 SRC				:= $(EXE).cpp
 CPPFLAGS	:= -g -Og
 CFLAGS		:=
-LDFLAGS		:= -lgpiodcxx
-OBJS			:= DigitalConversionMap.o Foyer.o Handler.o HardwareLoop.o InitializeServer.o RS485Bus.o StandardQueries.o Task.o Messages.o
+LDFLAGS		:= -lgpiodcxx -lmu2e-tracker-messaging
+OBJS			:= DigitalConversionMap.o Foyer.o Handler.o HardwareLoop.o InitializeServer.o RS485Bus.o StandardQueries.o Task.o
 
 all: $(EXE)
 
