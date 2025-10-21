@@ -1,0 +1,4 @@
+#!/bin/bash
+lib="/usr/lib"
+python="${lib}/python3/dist-packages/MonitoringServerConnection"
+echo 'from MonitoringServerConnection.MonitoringServerConnection import MonitoringServerConnection' >"${python}/__init__.py"
