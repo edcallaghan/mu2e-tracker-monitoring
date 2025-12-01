@@ -59,10 +59,10 @@ void RS485Bus::recv(Payload_t& rv){
       throw std::runtime_error(msg);
     }
     this->unpack_message(message, rv);
-   }
-   else{
-     /**/
-   }
+  }
+  else{
+    /**/
+  }
 
   // begin a cool-off period for the line to settle; the literal
   // waiting is deferred to a separate thread so that the current

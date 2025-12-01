@@ -8,7 +8,8 @@
 #include <thread>
 #include "DigitalConversionMap.h"
 #include "Handler.h"
+#include "Logger.h"
 
-void foyer(const int, Queue&, DigitalConversionMap&);
+void foyer(const int, Queue&, DigitalConversionMap&, Logger&);
 
 #endif

@@ -7,9 +7,10 @@
 
 #include <chrono>
 #include <thread>
+#include "Logger.h"
 #include "RS485Bus.h"
 #include "Queue.h"
 
-void hardware_loop(RS485Bus&, Queue&);
+void hardware_loop(RS485Bus&, Queue&, Logger&);
 
 #endif

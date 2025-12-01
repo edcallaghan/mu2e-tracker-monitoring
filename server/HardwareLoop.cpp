@@ -4,7 +4,7 @@
 
 #include "HardwareLoop.h"
 
-void hardware_loop(RS485Bus& bus, Queue& queue){
+void hardware_loop(RS485Bus& bus, Queue& queue, Logger& logger){
   bool timed_out = false;
   auto interval = std::chrono::milliseconds(10);
   RS485Bus::Payload_t payload;
@@ -24,6 +24,10 @@ void hardware_loop(RS485Bus& bus, Queue& queue){
       task->MarkComplete();
     }
     else{
+      std::string line = "hardware request timed out:";
+      line += " channel " + std::to_string(address)
+            + " opcode " + std::to_string(opcode);
+      logger.write(Logger::INFO, line);
       task->MarkTimedOut();
     }
   }
