@@ -22,7 +22,6 @@ std::string zero_padded_string(int field, unsigned int length){
     rv += "0";
   }
   rv += casted;
-  std::cout << field << ' ' << rv << std::endl;
   return rv;
 }
 
