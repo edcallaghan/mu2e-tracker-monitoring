@@ -79,6 +79,7 @@ void RS485Bus::recv(Payload_t& rv, bool& timed_out){
 
 void RS485Bus::set_line_value(gpiod::line::value value){
   this->request->set_value(this->enable_pin, value);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void RS485Bus::set_transmitting(){
@@ -137,5 +138,5 @@ void RS485Bus::unpack_message(const SerialMessage_t& message, Payload_t& payload
 
 void RS485Bus::pause_io(){
   std::lock_guard lock(this->mutex);
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(std::chrono::milliseconds(200));
 }
