@@ -2,6 +2,7 @@
 // Interface for monitoring tracker frontend queries over RS485 serial line
 // August 2025
 
+#include <csignal>
 #include <ctime>
 #include <string>
 #include "DigitalConversionMap.h"
@@ -57,6 +58,12 @@ int main(int argc, char** argv){
   // connect to hardware
   std::thread hardware_thread(hardware_loop, std::ref(bus), std::ref(queue),
                               std::ref(logger));
+
+  // convert SIGPIPE from unexpected client disconnects into an exception
+  auto sigpipe_handler = [] (int sig){
+    throw std::runtime_error("received SIGPIPE");
+  };
+  std::signal(SIGPIPE, sigpipe_handler);
 
   // begin listening for connections
   int sfd = initialize_server(12001, 512);

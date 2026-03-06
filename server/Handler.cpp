@@ -80,7 +80,20 @@ void client_handler(const Connection connection, Queue& queue,
     else{
       throw std::runtime_error("impossible state in client handler");
     }
-    message_send(message, connection.fd);
+
+    // unexpected client disconnects result in SIGPIPE,
+    // which is converted into an exception and caught.
+    try{
+      message_send(message, connection.fd);
+    }
+    catch (std::runtime_error exception){
+      std::string line = "exception while sending response to "
+                       + textip + ": "
+                       + exception.what()
+                       + ". dropping client.";
+      logger.write(Logger::INFO, line);
+      break;
+    }
   }
 
   std::string line = "connection from " + textip + " closed";
