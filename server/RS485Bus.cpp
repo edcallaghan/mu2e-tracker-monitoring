@@ -45,7 +45,7 @@ void RS485Bus::send(const Address_t address, const OpCode_t opcode){
     std::string msg = "message of incorrect size written";
     throw std::runtime_error(msg);
   }
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void RS485Bus::recv(Payload_t& rv){
@@ -53,10 +53,11 @@ void RS485Bus::recv(Payload_t& rv){
   SerialMessage_t message;
   this->set_receiving();
   size_t bytes = this->read(message);
+  this->set_transmitting();
   if (!(this->timed_out)){
     if (bytes != 3){
       std::string msg = "read message of incorrect size";
-      throw std::runtime_error(msg);
+      //throw std::runtime_error(msg);
     }
     this->unpack_message(message, rv);
   }
@@ -129,7 +130,7 @@ void RS485Bus::pack_message(const Address_t address, const OpCode_t opcode,
 void RS485Bus::unpack_message(const SerialMessage_t& message, Payload_t& payload){
   if (message[0] != RS485Bus::recv_header){
     std::string msg = "incorrect header byte in device response";
-    throw std::runtime_error(msg);
+    //throw std::runtime_error(msg);
   }
 
   const char* base = &message[0];
@@ -138,5 +139,5 @@ void RS485Bus::unpack_message(const SerialMessage_t& message, Payload_t& payload
 
 void RS485Bus::pause_io(){
   std::lock_guard lock(this->mutex);
-  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
