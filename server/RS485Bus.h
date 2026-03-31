@@ -40,6 +40,8 @@ class RS485Bus{
     asio::serial_port device;
     std::mutex mutex;
     std::chrono::seconds timeout;
+    std::string serial_path;
+    unsigned int baud_rate;
     bool timed_out;
     std::error_code read_error;
 
@@ -51,6 +53,8 @@ class RS485Bus{
     void pack_message(const Address_t, const OpCode_t, SerialMessage_t&);
     void unpack_message(const SerialMessage_t&, Payload_t&);
     void pause_io();
+
+    void reset_device();
 
   private:
     /**/

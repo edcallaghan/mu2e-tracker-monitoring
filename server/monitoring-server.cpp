@@ -48,6 +48,9 @@ int main(int argc, char** argv){
                context,
                "/dev/ttyAMA0", 38400);
 
+  // test
+//RS485Bus another_bus(bus);
+
   // reserve task queue
   Queue queue(1024);
 

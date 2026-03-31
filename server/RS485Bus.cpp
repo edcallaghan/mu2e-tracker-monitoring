@@ -12,7 +12,9 @@ RS485Bus::RS485Bus(const std::string& cpath, const unsigned int pin,
     context(context),
     executor(asio::make_strand(context)),
     device(executor),
-    timeout(std::chrono::seconds(1)){
+    timeout(std::chrono::seconds(1)),
+    serial_path(spath),
+    baud_rate(baud_rate){
   // claim ownership of gpio pin state
   gpiod::line_settings settings;
   settings.set_direction(gpiod::line::direction::OUTPUT);
@@ -24,9 +26,17 @@ RS485Bus::RS485Bus(const std::string& cpath, const unsigned int pin,
     std::string msg = "bad line request";
     throw std::runtime_error(msg);
   }
+  this->reset_device();
+}
+
+void RS485Bus::reset_device(){
+  if (this->device.is_open()){
+    this->device.close();
+  }
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
   // open serial device and set options
-  this->device.open(spath);
-  asio::serial_port_base::baud_rate baud(baud_rate);
+  this->device.open(this->serial_path);
+  asio::serial_port_base::baud_rate baud(this->baud_rate);
   asio::serial_port_base::parity parity(asio::serial_port_base::parity::none);
   asio::serial_port_base::stop_bits stop(asio::serial_port_base::stop_bits::one);
   asio::serial_port_base::character_size character(8);
@@ -34,6 +44,7 @@ RS485Bus::RS485Bus(const std::string& cpath, const unsigned int pin,
   this->device.set_option(parity);
   this->device.set_option(stop);
   this->device.set_option(character);
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
 
 void RS485Bus::send(const Address_t address, const OpCode_t opcode){
@@ -57,6 +68,7 @@ void RS485Bus::recv(Payload_t& rv){
   if (!(this->timed_out)){
     if (bytes != 3){
       std::string msg = "read message of incorrect size";
+      this->reset_device();
       //throw std::runtime_error(msg);
     }
     this->unpack_message(message, rv);
@@ -130,6 +142,7 @@ void RS485Bus::pack_message(const Address_t address, const OpCode_t opcode,
 void RS485Bus::unpack_message(const SerialMessage_t& message, Payload_t& payload){
   if (message[0] != RS485Bus::recv_header){
     std::string msg = "incorrect header byte in device response";
+    this->reset_device();
     //throw std::runtime_error(msg);
   }
 
