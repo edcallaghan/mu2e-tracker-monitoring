@@ -3,3 +3,5 @@ lib="/usr/lib"
 python="${lib}/python3/dist-packages/MonitoringServerConnection"
 echo 'from MonitoringServerConnection.MonitoringServerConnection import MonitoringServerConnection' >"${python}/__init__.py"
 chown mu2e:mu2e /var/log/monitoring
+systemctl enable monitoring-server.service
+systemctl restart monitoring-server.service

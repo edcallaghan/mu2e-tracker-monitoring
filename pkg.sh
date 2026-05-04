@@ -40,6 +40,7 @@ lib="${wd}/usr/lib"
 bin="${wd}/usr/bin"
 etc="${wd}/etc/${project}"
 log="${wd}/var/log/monitoring"
+syd="${wd}/etc/systemd/system"
 deb="${wd}/deb"
 python="${lib}/python3/dist-packages/MonitoringServerConnection"
 postinst="${tld}/postinst"
@@ -52,16 +53,21 @@ mkdir -p "${control}"   || exit_on_error "failed to make control subdirectory"
 mkdir -p "${bin}"       || exit_on_error "failed to make bin subdirectory"
 mkdir -p "${etc}"       || exit_on_error "failed to make etc subdirectory"
 mkdir -p "${log}"       || exit_on_error "failed to make log subdirectory"
+mkdir -p "${syd}"       || exit_on_error "failed to make systemd subdirectory"
 mkdir -p "${python}"    || exit_on_error "failed to make python subdirectory"
 
 tmp='./server'
 binary="${tmp}/monitoring-server"
 module='./client/MonitoringServerConnection.py'
 pushd ${tmp} || exit_on_error "failed to cd to ${tmp}"
+make clean
 make -j4 || exit_on_error "compilation failed"
 popd
+service='./systemd/monitoring-server.service'
+starget="${syd}/monitoring-server.service"
 rsync ${binary} ${bin}          || exit_on_error "failed to copy binary"
 rsync ${module} ${python}       || exit_on_error "failed to copy python module"
+rsync ${service} ${starget}     || exit_on_error "failed to copy systemd service"
 rsync ${postinst} ${control}    || exit_on_error "failed to copy postinstall script"
 echo ${commit} >"${etc}/commit" || exit_on_error "failed to cache commit hash"
 sed "s,%%VERSION%%,${version}," "${template}" >"${control}/control" \
